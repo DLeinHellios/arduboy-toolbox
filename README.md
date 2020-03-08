@@ -27,4 +27,4 @@ The sketch runs at 30 FPS by default and relies on the timing of the [Arduboy2 l
 ## Credits
 Code by [DLeinHellios](https://github.com/dleinhellios) </br>
 Title font by ZN </br>
-Thanks to the [Arduboy2](https://github.com/MLXXXp/Arduboy2) and [TinyFont](https://github.com/MLXXXp/Arduboy2) projects
+Thanks to the [Arduboy2](https://github.com/MLXXXp/Arduboy2) and [TinyFont](https://github.com/yinkou/Arduboy-TinyFont) projects
