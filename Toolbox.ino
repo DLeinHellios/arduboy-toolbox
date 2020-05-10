@@ -35,7 +35,7 @@ void loop() { // Main Loop
             moveUpdate();
             break;
 
-        case 2: // Click Mouse
+        case 2: // Autoclick
             drawClick();
             clickInput();
             clickUpdate();

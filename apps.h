@@ -4,10 +4,10 @@
 
 /*
 ------- APP STATES -------
-        0 = Main Menu
-        1 = Move Mouse - HID Mouse Jiggler
-        2 = Autoclick - HID Automatic Mouse Clicker
-        3 = Roll Dice - DnD-style RNG
+    0 = Main Menu
+    1 = Move Mouse - HID Mouse Jiggler
+    2 = Autoclick - HID Automatic Mouse Clicker
+    3 = Roll Dice - DnD-style RNG [WIP]
 --------------------------
 */
 
@@ -93,8 +93,16 @@ void shutoffScreen() {
     }
 }
 
+
 void wakeScreen() {
+    // Wakes screen from sleep
     screenOff = false;
+    screenTimer = 0;
+}
+
+
+void resetScreenTimer() {
+    // Resets screen timer without waking screen
     screenTimer = 0;
 }
 
@@ -130,6 +138,7 @@ bool pressAnyButton() {
 
     return pressed;
 }
+
 
 // --- Drawing ---
 void drawHorizontalArrows(int x, int y) {
@@ -174,6 +183,7 @@ void changeMoveMode() {
 void moveInput() {
     // Handles input on move mouse tool
     if (screenOff) {
+        // Wake screen, disregard other input on this frame
         if (pressAnyButton()) {
             wakeScreen();
         }
@@ -187,12 +197,15 @@ void moveInput() {
 
         } else if(arduboy.justPressed(UP_BUTTON)) {
             increaseSeconds();
+            resetScreenTimer();
 
         } else if(arduboy.justPressed(DOWN_BUTTON)) {
             decreaseSeconds();
+            resetScreenTimer();
 
         } else if(arduboy.justPressed(LEFT_BUTTON) || arduboy.justPressed(RIGHT_BUTTON)) {
             changeMoveMode();
+            resetScreenTimer();
 
         } else if(arduboy.justPressed(A_BUTTON)) {
             // Start/Stop Tool
@@ -205,6 +218,7 @@ void moveInput() {
         }
     }
 }
+
 
 void moveFixed() {
     // Executes a single mouse movement back-and-forth
@@ -321,12 +335,15 @@ void clickInput() {
 
         } else if(arduboy.justPressed(UP_BUTTON)) {
             increaseSeconds();
+            resetScreenTimer();
 
         } else if(arduboy.justPressed(DOWN_BUTTON)) {
             decreaseSeconds();
+            resetScreenTimer();
 
         } else if(arduboy.justPressed(LEFT_BUTTON) || arduboy.justPressed(RIGHT_BUTTON)) {
             changeClickMode();
+            resetScreenTimer();
 
         } else if(arduboy.justPressed(A_BUTTON)) {
             // Start/Stop Tool
@@ -419,7 +436,7 @@ void drawClick() {
 
 // ========== Roll Dice ==========
 
-// TOOL IS WIP
+// This tool is a WIP!
 
 void rollSetup() {
     arduboy.initRandomSeed();
@@ -491,7 +508,7 @@ void menuInput() {
 
 
 void menuUpdate() {
-    // Updates menu for
+    // Updates menu
     if(!menuState) {
         if(splashWait >= SPLASH_DELAY) {
             menuState = 1;

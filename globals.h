@@ -20,14 +20,14 @@ byte appState = 0;
 byte menuState = 0;
 int menuItem = DEFAULT_MENU_ITEM;
 
-int splashWait = 0;
-int screenTimer = 0;
-bool screenOff = false;
-bool lightOn = false;
+int splashWait = 0; // Count frames for boot animation
+int screenTimer = 0; // Count frames to toggle screen on/off
+bool screenOff = false; // Is screen currently off?
+bool lightOn = false; // Is LED currently on?
 
 
 // Timing
-bool HIDActive = false;
+bool HIDActive = false; // Is an HID tool currently active
 byte countFrames = 0; // Counts frames while HID is active
 int countSeconds = 0; // Counts seconds while HID is active
 int targetSeconds = 0; // User-set time in seconds
@@ -39,6 +39,6 @@ int moveDistance = 5; // Distance to move mouse horizontally, in pixels
 
 // Autoclick
 bool clickModeSingle = true; // Mode select for autoclick - single/double
-int clickDoubleTime;
+int clickDoubleTime; // Count frames between double-clicks
 
 #endif
