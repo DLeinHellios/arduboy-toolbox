@@ -7,10 +7,9 @@
     0 = Main Menu
     1 = Move Mouse - HID Mouse Jiggler
     2 = Autoclick - HID Automatic Mouse Clicker
-    3 = Roll Dice - DnD-style RNG [WIP]
+    3 = Roll Dice - DnD-style RNG 
 --------------------------
 */
-
 
 
 // =========== Common Functions =========
@@ -156,6 +155,13 @@ void drawVerticalArrows(int x, int y) {
     arduboy.drawLine(x,y+1,x+2,y+1);
     arduboy.drawPixel(x+1,y+4);
     arduboy.drawLine(x,y+3,x+2,y+3);
+}
+
+drawRightFacingArrow(int x, int y) {
+    // Single right-facing arrow
+    arduboy.drawPixel(x+2,y+2);
+    arduboy.drawLine(x+1,y+1,x+1,y+3);
+    arduboy.drawLine(x,y,x,y+4);
 }
 
 
@@ -329,32 +335,32 @@ void changeClickMode() {
 void clickInput() {
     // Handles input for autoclick tool
     arduboy.pollButtons();
-        if(arduboy.justPressed(B_BUTTON)) {
-            appState = 0; // Exit to Menu
+    if(arduboy.justPressed(B_BUTTON)) {
+        appState = 0; // Exit to Menu
+        HIDActive = false;
+
+    } else if(arduboy.justPressed(UP_BUTTON)) {
+        increaseSeconds();
+        resetScreenTimer();
+
+    } else if(arduboy.justPressed(DOWN_BUTTON)) {
+        decreaseSeconds();
+        resetScreenTimer();
+
+    } else if(arduboy.justPressed(LEFT_BUTTON) || arduboy.justPressed(RIGHT_BUTTON)) {
+        changeClickMode();
+        resetScreenTimer();
+
+    } else if(arduboy.justPressed(A_BUTTON)) {
+        // Start/Stop Tool
+        if(HIDActive) {
             HIDActive = false;
-
-        } else if(arduboy.justPressed(UP_BUTTON)) {
-            increaseSeconds();
-            resetScreenTimer();
-
-        } else if(arduboy.justPressed(DOWN_BUTTON)) {
-            decreaseSeconds();
-            resetScreenTimer();
-
-        } else if(arduboy.justPressed(LEFT_BUTTON) || arduboy.justPressed(RIGHT_BUTTON)) {
-            changeClickMode();
-            resetScreenTimer();
-
-        } else if(arduboy.justPressed(A_BUTTON)) {
-            // Start/Stop Tool
-            if(HIDActive) {
-                HIDActive = false;
-            } else {
-                HIDActive = true;
-                resetCounts();
-                clickDoubleTime = -1;
-            }
+        } else {
+            HIDActive = true;
+            resetCounts();
+            clickDoubleTime = -1;
         }
+    }
 }
 
 
@@ -435,38 +441,158 @@ void drawClick() {
 
 
 // ========== Roll Dice ==========
-
-// This tool is a WIP!
+void resetResults() {
+    for (int i = 0; i < 5; i++) {
+        diceResult[i] = 0;
+    }
+}
 
 void rollSetup() {
     arduboy.initRandomSeed();
     appState = 3;
+    diceSelected = 0;
+    diceRolled = -1;
+    currentRoll = 0;
+    resetResults();
 }
 
+int maxRoll() {
+    int roll = 0;
+    for (int r = 0; r < 5; r++) {
+        if (diceResult[r] > roll) {
+            roll = diceResult[r];
+        }
+    }
+
+    return roll;
+}
+
+int minRoll() {
+    int roll = 999;
+    for (int r = 0; r < 5; r++) {
+        if (diceResult[r] < roll && diceResult[r] > 0) {
+            roll = diceResult[r];
+        }
+    }
+
+    return roll;
+}
+
+int sumRolls() {
+    int roll = 0;
+    for (int r = 0; r < 5; r++) {
+        roll += diceResult[r];
+    }
+
+    return roll;
+}
+
+int avgRolls() {
+    int count = 0;
+    for (int r = 0; r < 5; r++) {
+        if (diceResult[r] > 0) {
+            count++;
+        }
+    }
+
+    return sumRolls() / count;
+}
 
 void rollInput() {
     arduboy.pollButtons();
-        if(arduboy.justPressed(B_BUTTON)) {
+    if (arduboy.justPressed(B_BUTTON)) {
+        if (diceRolled > 0) {
+            diceRolled = -1;
+        } else {
             appState = 0; // Exit to Menu
         }
-}
-
-
-void rollUpdate() {
-
+    }
+    if (arduboy.justPressed(DOWN_BUTTON) || arduboy.justPressed(RIGHT_BUTTON)) {
+        if (diceSelected < nDice - 1) {
+            diceSelected++;
+        } else {
+            diceSelected = 0;
+        }
+    }
+    if (arduboy.justPressed(UP_BUTTON) || arduboy.justPressed(LEFT_BUTTON)) {
+        if (diceSelected > 0) {
+            diceSelected--;
+        } else {
+            diceSelected = nDice - 1;
+        }
+    }
+    if (arduboy.justPressed(A_BUTTON)) {
+        if (!(diceSupported[diceSelected] == diceRolled)) {
+            currentRoll = 0;
+            resetResults();
+        } else if (currentRoll > 4) {
+            currentRoll = 0;
+        }
+        diceRolled = diceSupported[diceSelected];
+        diceResult[currentRoll] = random(1,diceRolled+1);
+        currentRoll++;
+    }
 }
 
 
 void drawRoll() {
-    byte xOffset = 0;
-    byte yOffset = 0;
+    sprites.drawOverwrite(40, 0, titles, 2);
+    arduboy.drawLine(0, 9, 128, 9);
 
-    sprites.drawOverwrite(14 + xOffset,yOffset,titles,2);
-    arduboy.drawLine(0 + xOffset,9 + yOffset,73 + xOffset,9 + yOffset);
-    tinyfont.setCursor(2 + xOffset,12 + yOffset);
-    tinyfont.print("D2 - D4 - D6 - D8 - D10");
-    tinyfont.setCursor(2 + xOffset,18 + yOffset);
-    tinyfont.print("D12 - D20 - D100");
+    // Select left
+    byte textLine = 12;
+    for (byte i = 0; i < nDice; i++) {
+        tinyfont.setCursor(6, textLine);
+        tinyfont.print("D");
+        tinyfont.print(diceSupported[i]);
+        if (diceSelected == i) {
+            drawRightFacingArrow(0, textLine);
+        }
+        textLine += 6;
+    }
+
+    // Results center
+    if (diceRolled > 0) {
+        tinyfont.setCursor(40,12);
+        tinyfont.print("ROLL D");
+        tinyfont.print(diceRolled);
+        drawRightFacingArrow(45,52);
+
+        for (int r = 0; r < 5; r++) {
+            int result;
+            if (currentRoll + r >= 5) {
+                result = diceResult[currentRoll + r - 5];
+            } else {
+                result = diceResult[currentRoll + r];
+            }
+
+            if (result > 0) {
+                arduboy.setCursor(52, 18+(8*r));
+                arduboy.print(result);
+                if (diceRolled == 2 && result == 1) {
+                    arduboy.print("(H)");
+                } else if (diceRolled == 2 && result == 2) {
+                    arduboy.print("(T)");
+                }
+            }
+        }
+    }
+
+    // Stats Right
+    if (diceRolled > 0) {
+        tinyfont.setCursor(88,22);
+        tinyfont.print("MIN:");
+        tinyfont.print(minRoll());
+        tinyfont.setCursor(88,30);
+        tinyfont.print("MAX:");
+        tinyfont.print(maxRoll());
+        tinyfont.setCursor(88,38);
+        tinyfont.print("SUM:");
+        tinyfont.print(sumRolls());
+        tinyfont.setCursor(88,46);
+        tinyfont.print("AVG:");
+        tinyfont.print(avgRolls());
+    }
 }
 
 

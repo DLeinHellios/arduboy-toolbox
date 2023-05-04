@@ -44,7 +44,6 @@ void loop() { // Main Loop
         case 3: // Roll Dice
             drawRoll();
             rollInput();
-            rollUpdate();
             break;
     }
 
