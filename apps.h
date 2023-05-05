@@ -456,46 +456,38 @@ void rollSetup() {
     resetResults();
 }
 
-int maxRoll() {
-    int roll = 0;
-    for (int r = 0; r < 5; r++) {
-        if (diceResult[r] > roll) {
-            roll = diceResult[r];
+void setStats() {
+    // Min
+    rollStats[0] = diceResult[0];
+    for (int r = 1; r < 5; r++) {
+        if (diceResult[r] < rollStats[0] && diceResult[r] > 0) {
+            rollStats[0] = diceResult[r];
         }
     }
 
-    return roll;
-}
-
-int minRoll() {
-    int roll = 999;
+    // Max
+    rollStats[1] = 0;
     for (int r = 0; r < 5; r++) {
-        if (diceResult[r] < roll && diceResult[r] > 0) {
-            roll = diceResult[r];
+        if (diceResult[r] > rollStats[1]) {
+            rollStats[1] = diceResult[r];
         }
     }
 
-    return roll;
-}
-
-int sumRolls() {
-    int roll = 0;
+    // Sum
+    rollStats[2] = 0;
     for (int r = 0; r < 5; r++) {
-        roll += diceResult[r];
+        rollStats[2] += diceResult[r];
     }
 
-    return roll;
-}
-
-int avgRolls() {
-    int count = 0;
+    // Avg
+    float count = 0;
     for (int r = 0; r < 5; r++) {
         if (diceResult[r] > 0) {
             count++;
         }
     }
-
-    return sumRolls() / count;
+    rollAvg = rollStats[2] / count;
+    rollStats[3] = rollAvg + 0.5;
 }
 
 void rollInput() {
@@ -523,13 +515,16 @@ void rollInput() {
     }
     if (arduboy.justPressed(A_BUTTON)) {
         if (!(diceSupported[diceSelected] == diceRolled)) {
+            // Reset on new dice
             currentRoll = 0;
             resetResults();
         } else if (currentRoll > 4) {
+            // Roll back to first result
             currentRoll = 0;
         }
         diceRolled = diceSupported[diceSelected];
         diceResult[currentRoll] = random(1,diceRolled+1);
+        setStats();
         currentRoll++;
     }
 }
@@ -582,16 +577,16 @@ void drawRoll() {
     if (diceRolled > 0) {
         tinyfont.setCursor(88,22);
         tinyfont.print("MIN:");
-        tinyfont.print(minRoll());
+        tinyfont.print(rollStats[0]);
         tinyfont.setCursor(88,30);
         tinyfont.print("MAX:");
-        tinyfont.print(maxRoll());
+        tinyfont.print(rollStats[1]);
         tinyfont.setCursor(88,38);
         tinyfont.print("SUM:");
-        tinyfont.print(sumRolls());
+        tinyfont.print(rollStats[2]);
         tinyfont.setCursor(88,46);
         tinyfont.print("AVG:");
-        tinyfont.print(avgRolls());
+        tinyfont.print(rollAvg);
     }
 }
 

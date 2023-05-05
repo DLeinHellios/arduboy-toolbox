@@ -42,12 +42,13 @@ bool clickModeSingle = true; // Mode select for autoclick - single/double
 int clickDoubleTime = 0; // Count frames between double-clicks
 
 // Roll Dice
-const int nDice = 8;
-int diceSupported[nDice] = {2,4,6,8,10,12,20,100}; 
-int diceSelected = 0;
-int diceRolled = -1;
-int diceResult[5] = {0};
-int currentRoll = 0;
-
+const int nDice = 8; // Number of dice supported
+int diceSupported[nDice] = {2,4,6,8,10,12,20,100}; // Array of supported dice max values
+int diceSelected = 0; // Currently selected dice
+int diceRolled = -1; // Dice currently rolled with results
+int diceResult[5] = {0}; // Array of dice results history
+int currentRoll = 0; // Tracks position in diceResult
+int rollStats[4] = {0}; // Stats for current diceResults [min,max,sum,avg]
+float rollAvg = 0.0; // Float for better avg
 
 #endif
