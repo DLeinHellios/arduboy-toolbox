@@ -609,7 +609,7 @@ void menuInput() {
                 menuItem = MAX_MENU_ITEMS;
             }
 
-        } else if(arduboy.justPressed(A_BUTTON) || arduboy.justPressed(B_BUTTON)) {
+        } else if(arduboy.justPressed(A_BUTTON)) {
             switch(menuItem) {
                 case 0:
                     moveSetup();
