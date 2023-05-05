@@ -17,7 +17,12 @@ Turn the Arduboy into a useful pocket device! Part productivity, part annoy-o-tr
 	- Supports variable time intervals
 
 
-*HID tools will blank the screen after a duration while active without user input
+**Roll Dice** - Roll a set of DnD-styled dice
+	- Supports D2, D4, D6, D8, D10, D12, D20, and D100
+	- Store up to 5 concurrent rolls
+
+
+*HID tools will blank the screen after a duration while active without user input. Obviously only work on original hardware!
 
 *More tools to be added*
 
